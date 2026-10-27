@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Zuras } from "./icon/zuras";
 import { Oroong } from "./icon/oroong";
 import { Smile } from "./icon/smile";
@@ -7,116 +10,154 @@ import { Fire } from "./icon/fire";
 import { Paw } from "./icon/paw";
 import { Star } from "./icon/star";
 import { Clock } from "./icon/clock";
+
+const URL = "https://dog.ceo/api/breeds/image/random";
+const DEF_DOG = {
+  image: "https://images.dog.ceo/breeds/retriever-golden/n02099601_100.jpg",
+  breed: "Golden Retriever",
+};
+const STATS = [
+  { label: "Friendliness", value: "10 / 10", bar: "w-full", Icon: Smile },
+  { label: "Energy Level", value: "Vibrant", bar: "w-4/5", Icon: Thunder },
+  {
+    label: "Mood Boost",
+    value: "Instant",
+    bar: "w-full",
+    Icon: Fire,
+    wide: true,
+  },
+];
+
+const parseBreed = (url) => {
+  const m = url.match(/breeds\/([^/]+)\//);
+  return m
+    ? m[1]
+        .split("-")
+        .reverse()
+        .map((w) => w[0].toUpperCase() + w.slice(1))
+        .join(" ")
+    : "Unknown";
+};
+
+const StatCard = ({ label, value, bar, Icon, wide }) => (
+  <div
+    className={`flex flex-col gap-1 p-4 rounded-3xl bg-white dark:bg-zinc-900 shadow-sm ${wide ? "col-span-2 sm:col-span-1" : ""}`}>
+    <div className="flex justify-between text-xs font-semibold text-zinc-600 dark:text-stone-300">
+      <span>{label}</span>
+      <Icon />
+    </div>
+    <span className="text-xl font-bold text-zinc-900 dark:text-stone-200">
+      {value}
+    </span>
+    <div className="mt-1 h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+      <div className={`h-full bg-amber-500 rounded-full ${bar}`} />
+    </div>
+  </div>
+);
+
 export function Hero() {
+  const [dog, setDog] = useState(DEF_DOG);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleShuffle = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(URL);
+      if (!res.ok) throw new Error("Failed to load");
+      const data = await res.json();
+      setDog({ image: data.message, breed: parseBreed(data.message) });
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section
-      className="bg-zinc-950 font-sans text-base text-stone-200 relative isolate w-full px-4 lg:px-8 pt-6 pb-10 overflow-hidden"
-      id="discover">
-      <div className="absolute -top-32 left-1/4 w-96 h-96 rounded-full bg-amber-300/10 blur-3xl pointer-events-none -z-10" />
-      <div className="absolute top-1/2 right-10 w-80 h-80 roundedsection-full bg-orange-400/10 blur-3xl pointer-events-none -z-10" />
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-10 items-center">
-        <div className="lg:col-span-7 flex flex-col items-start gap-4">
-          <div className="inline-flex items-center gap-1 px-4 py-1 rounded-full bg-zinc-800 text-amber-300 font-semibold text-xs shadow-sm">
+      id="Discover"
+      className="relative isolate w-full overflow-hidden bg-stone-50 px-4 pt-6 pb-10 text-zinc-900 dark:bg-zinc-950 dark:text-stone-200 lg:px-8">
+      <div className="pointer-events-none absolute -top-32 left-1/4 -z-10 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/2 right-10 -z-10 h-80 w-80 rounded-full bg-orange-400/10 blur-3xl" />
+
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-5 lg:grid-cols-12 lg:gap-10">
+        <div className="flex flex-col items-start gap-4 lg:col-span-7">
+          <div className="inline-flex items-center gap-1 rounded-full bg-zinc-200 px-4 py-1 text-xs font-semibold text-amber-700 dark:bg-zinc-800 dark:text-amber-300">
             <span>🐾</span>
             <span>Daily Joy Feed</span>
           </div>
-          <h1 className="font-extrabold text-4xl leading-tight sm:text-5xl tracking-tight text-stone-200">
-            Meet a New
-            <span className="text-amber-500 relative inline-block">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+            Meet a New{" "}
+            <span className="relative inline-block text-amber-500">
               Friend
               <Zuras />
             </span>
           </h1>
-          <p className="font-normal text-lg leading-7 text-stone-300 max-w-xl">
+          <p className="max-w-xl text-lg text-zinc-600 dark:text-stone-300">
             Discover dogs from around the world, one adorable face at a time.
-            Pure companionship, heart-melting grins, and gentle spirits.
           </p>
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          <div className="flex flex-wrap gap-4 pt-2">
             <button
-              className="inline-flex items-center gap-1 px-10 py-4 rounded-full bg-amber-500 text-amber-950 font-semibold text-sm transition-transform hover:scale-105 active:scale-95 shadow-md"
-              id="shuffleHeroBtn"
-              type="button">
+              type="button"
+              onClick={handleShuffle}
+              disabled={loading}
+              className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-10 py-4 text-sm font-semibold text-amber-950 shadow-md transition hover:scale-105 active:scale-95 disabled:opacity-60">
               <Oroong />
-              <span>Show Another</span>
+              <span>{loading ? "Loading..." : "Show Another"}</span>
             </button>
             <a
-              className="inline-flex items-center gap-1 px-6 py-4 rounded-full bg-zinc-900 text-stone-200 font-semibold text-sm hover:bg-zinc-800 transition-colors"
-              href="#breeds">
+              href="#Breeds"
+              className="inline-flex items-center gap-1 rounded-full bg-white px-6 py-4 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-200 dark:bg-zinc-900 dark:text-stone-200 dark:hover:bg-zinc-800">
               <span>Explore Breeds</span>
               <Down />
             </a>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 w-full max-w-lg">
-            <div className="flex flex-col gap-1 p-4 rounded-3xl bg-zinc-900 shadow-sm">
-              <div className="flex items-center justify-between text-stone-300 font-semibold text-xs">
-                <span>Friendliness</span>
-                <Smile />
-              </div>
-              <span className="font-bold text-xl text-stone-200">10 / 10</span>
-              <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden mt-1">
-                <div className="bg-amber-500 h-full w-full rounded-full" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1 p-4 rounded-3xl bg-zinc-900 shadow-sm">
-              <div className="flex items-center justify-between text-stone-300 font-semibold text-xs">
-                <span>Energy Level</span>
-                <Thunder />
-              </div>
-              <span className="font-bold text-xl text-stone-200">Vibrant</span>
-              <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden mt-1">
-                <div className="bg-amber-500 h-full w-4/5 rounded-full" />
-              </div>
-            </div>
-            <div className="col-span-2 sm:col-span-1 flex flex-col gap-1 p-4 rounded-3xl bg-zinc-900 shadow-sm">
-              <div className="flex items-center justify-between text-stone-300 font-semibold text-xs">
-                <span>Mood Boost</span>
-                <Fire />
-              </div>
-              <span className="font-bold text-xl text-stone-200">Instant</span>
-              <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden mt-1">
-                <div className="bg-amber-500 h-full w-full rounded-full" />
-              </div>
-            </div>
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          <div className="grid w-full max-w-lg grid-cols-2 gap-4 pt-4 sm:grid-cols-3">
+            {STATS.map((s) => (
+              <StatCard key={s.label} {...s} />
+            ))}
           </div>
         </div>
-        <div className="lg:col-span-5 relative">
-          <div className="relative bg-zinc-900 p-4 rounded-3xl shadow-xl overflow-hidden group">
-            <div className="relative w-full h-105 rounded-3xl overflow-hidden bg-zinc-700">
+
+        <div className="relative lg:col-span-5">
+          <div className="group relative overflow-hidden rounded-3xl bg-white p-4 shadow-xl dark:bg-zinc-900">
+            <div className="relative h-96 w-full overflow-hidden rounded-3xl bg-zinc-300 dark:bg-zinc-700">
               <img
-                alt=""
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                src="https://images.dog.ceo/breeds/retriever-golden/n02099601_100.jpg"
+                src={dog.image}
+                alt={dog.breed}
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
-              <div className="absolute top-4 left-4 flex items-center gap-1 px-4 py-1 rounded-full bg-zinc-900/80 backdrop-blur-md text-stone-200 font-semibold text-xs">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span>Golden Retriever</span>
+              <div className="absolute top-4 left-4 flex items-center gap-1 rounded-full bg-zinc-900/80 px-4 py-1 text-xs font-semibold text-stone-200 backdrop-blur-md">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-amber-500" />
+                <span>{dog.breed}</span>
               </div>
-              <div className="absolute top-4 right-4 px-4 py-1 rounded-full bg-amber-500 text-amber-950 font-semibold text-xs shadow-sm">
+              <div className="absolute top-4 right-4 rounded-full bg-amber-500 px-4 py-1 text-xs font-semibold text-amber-950">
                 Gentle Giant
               </div>
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
-              <div className="absolute bottom-4 inset-x-4 flex items-end justify-between">
+              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
+              <div className="absolute inset-x-4 bottom-4 flex items-end justify-between">
                 <div>
-                  <h3 className="font-bold text-2xl text-stone-200">
-                    Sunny Cooper
+                  <h3 className="text-2xl font-bold text-stone-200">
+                    {dog.breed}
                   </h3>
-                  <p className="font-normal text-sm leading-5 text-stone-300">
-                    Gentle companion • Loves afternoon park fetch
+                  <p className="text-sm text-stone-300">
+                    Gentle companion • Loves park fetch
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-zinc-800/90 backdrop-blur-sm flex items-center justify-center text-amber-300 shadow-md">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/90 text-amber-300 backdrop-blur-sm">
                   <Paw />
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-1 flex items-center justify-between text-stone-300 font-semibold text-xs px-1">
+            <div className="mt-4 flex justify-between px-1 text-xs font-semibold text-zinc-600 dark:text-stone-300">
               <span className="flex items-center gap-1">
-                <Star />
-                AKC Sporting Group
+                <Star /> AKC Sporting
               </span>
               <span className="flex items-center gap-1">
-                <Clock />
-                10–12 Years
+                <Clock /> 10–12 Years
               </span>
             </div>
           </div>

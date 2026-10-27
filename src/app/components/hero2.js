@@ -1,229 +1,168 @@
-import { Star2 } from "./icon/star2";
+"use client";
+
+import { useState } from "react";
+import { Bigstar } from "./icon/bigstar";
+
+const T = "text-zinc-900 dark:text-stone-200",
+  M = "text-zinc-600 dark:text-stone-300",
+  A = "text-amber-700 dark:text-amber-300";
+const C = "bg-white dark:bg-zinc-900",
+  S = "bg-zinc-200 dark:bg-zinc-800",
+  G = "bg-amber-500 text-amber-950";
+const B =
+  "py-1 px-4 rounded-full font-semibold text-xs transition-colors whitespace-nowrap";
+
+const unsplash = (id) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=800&q=80`;
+const BREEDS = {
+  "Pembroke Welsh Corgi": ["Playful & Bold", "Trainability", "Kids"],
+  "Golden Retriever": ["Friendly & Devoted", "Eager", "Kids"],
+  "French Bulldog": ["Easygoing & Charming", "Easy", "City"],
+  "Shiba Inu": ["Alert & Spirited", "Independent", "Spirited"],
+  Samoyed: ["Gentle & Smiling", "Friendly", "Kids"],
+};
+const NAMES = Object.keys(BREEDS);
+const DOGS = [
+  {
+    name: "Barnaby",
+    breed: "Pembroke Welsh Corgi",
+    age: "2y",
+    bio: "Loves open fields",
+    tags: ["Smart"],
+    image: unsplash("1558788353-f76d92427f16"),
+  },
+  {
+    name: "Milo",
+    breed: "French Bulldog",
+    age: "1.5y",
+    bio: "Couch companion",
+    tags: ["Quiet"],
+    image: unsplash("1583337130417-3346a1be7dee"),
+  },
+  {
+    name: "Archie",
+    breed: "Golden Retriever",
+    age: "3y",
+    bio: "Park sprinter",
+    tags: ["Gentle"],
+    image: "https://images.dog.ceo/breeds/retriever-golden/n02099601_100.jpg",
+  },
+];
+
+export const Badge = ({ children, gold }) => (
+  <span
+    className={`px-2 py-0.5 rounded-full font-semibold text-xs ${gold ? G : `${S} ${M}`}`}>
+    {children}
+  </span>
+);
 
 export function Hero2() {
+  const [f, setF] = useState("all");
+  const name = BREEDS[f] ? f : NAMES[0];
+  const [info, trait, tag] = BREEDS[name];
+  const dogs = DOGS.filter((d) => f === "all" || d.breed === f);
+
   return (
     <section
-      className="bg-zinc-950 font-sans text-base text-stone-200 w-full px-4 lg:px-8 py-10"
-      id="breeds">
-      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      id="Breeds"
+      className={`bg-stone-50 dark:bg-zinc-950 ${T} w-full px-4 lg:px-8 py-10`}>
+      <div className="mx-auto max-w-7xl flex flex-col gap-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="flex flex-col items-start gap-1 max-w-2xl">
-            <div className="inline-flex items-center gap-1 px-4 py-1 rounded-full bg-zinc-800 text-amber-300 font-semibold text-xs">
-              <span>🐾</span>
-              <span>BREED COMPENDIUM</span>
-            </div>
-            <h2 className="font-bold text-3xl leading-tight text-stone-200 tracking-tight">
+          <div>
+            <span
+              className={`inline-flex gap-1 px-3 py-1 rounded-full font-semibold text-xs ${S} ${A}`}>
+              🐾 BREEDS
+            </span>
+            <h2 className={`text-3xl font-bold mt-1 ${T}`}>
               Find Your Favorite Breed
             </h2>
-            <p className="font-normal text-base leading-6 text-stone-300">
-              Choose from hundreds of friendly breeds and see happy pups ready
-              to brighten your day.
-            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 bg-zinc-900 p-1 rounded-full shadow-sm">
-            <div className="relative">
-              <select
-                aria-label="Select dog breed"
-                className="appearance-none bg-zinc-800 text-stone-200 font-semibold text-xs rounded-full pl-4 pr-10 py-1 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
-                id="breedSelect">
-                <option defaultValue="corgi">Pembroke Welsh Corgi</option>
-                <option value="golden">Golden Retriever</option>
-                <option value="frenchie">French Bulldog</option>
-                <option value="shiba">Shiba Inu</option>
-                <option value="samoyed">Samoyed</option>
-              </select>
-              <Star2 />
-            </div>
+          <select
+            value={name}
+            onChange={(e) => setF(e.target.value)}
+            className={`${C} ${S} ${T} text-xs rounded-full px-4 py-2 font-semibold outline-none cursor-pointer`}>
+            {NAMES.map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {["all", ...NAMES].map((n) => (
             <button
-              className="px-6 py-1 rounded-full bg-amber-500 text-amber-950 font-semibold text-xs hover:brightness-105 transition-all"
-              type="button">
-              Show Dogs
+              key={n}
+              onClick={() => setF(n)}
+              className={`${B} ${f === n ? `${G} shadow-sm` : `${C} ${M}`}`}>
+              {n === "all" ? "All" : n}
             </button>
-          </div>
+          ))}
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          <button
-            className="px-4 py-1 rounded-full bg-amber-500 text-amber-950 font-semibold text-xs whitespace-nowrap shadow-sm"
-            type="button">
-            All Breeds
-          </button>
-          <button
-            className="px-4 py-1 rounded-full bg-zinc-900 text-stone-300 hover:text-stone-200 hover:bg-zinc-800 font-semibold text-xs whitespace-nowrap transition-colors"
-            type="button">
-            Pembroke Welsh Corgi
-          </button>
-          <button
-            className="px-4 py-1 rounded-full bg-zinc-900 text-stone-300 hover:text-stone-200 hover:bg-zinc-800 font-semibold text-xs whitespace-nowrap transition-colors"
-            type="button">
-            Golden Retriever
-          </button>
-          <button
-            className="px-4 py-1 rounded-full bg-zinc-900 text-stone-300 hover:text-stone-200 hover:bg-zinc-800 font-semibold text-xs whitespace-nowrap transition-colors"
-            type="button">
-            French Bulldog
-          </button>
-          <button
-            className="px-4 py-1 rounded-full bg-zinc-900 text-stone-300 hover:text-stone-200 hover:bg-zinc-800 font-semibold text-xs whitespace-nowrap transition-colors"
-            type="button">
-            Shiba Inu
-          </button>
-          <button
-            className="px-4 py-1 rounded-full bg-zinc-900 text-stone-300 hover:text-stone-200 hover:bg-zinc-800 font-semibold text-xs whitespace-nowrap transition-colors"
-            type="button">
-            Samoyed
-          </button>
-        </div>
-        <div className="w-full bg-zinc-900 p-6 rounded-3xl shadow-md flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
-          <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-300/10 rounded-full blur-2xl pointer-events-none" />
+
+        {/* Featured */}
+        <div
+          className={`${C} relative overflow-hidden p-6 rounded-3xl shadow-md flex flex-col md:flex-row items-center justify-between gap-4`}>
           <div className="flex items-center gap-4 z-10">
-            <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-300">
-              <svg
-                aria-hidden="true"
-                className="shrink-0 size-7"
-                xmlns="http://www.w3.org/2000/svg"
-                width={20}
-                height={20}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <path d="m12 3 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z" />
-              </svg>
+            <div
+              className={`w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center ${A}`}>
+              <Bigstar />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold text-xl text-stone-200">
-                  Pembroke Welsh Corgi
-                </h3>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500 text-amber-950 font-semibold text-xs">
-                  Top Pick
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-zinc-700 text-stone-300 font-semibold text-xs">
-                  Great with Kids
-                </span>
+                <h3 className={`text-xl font-bold ${T}`}>{name}</h3>
+                <Badge gold>Top</Badge>
+                <Badge>{tag}</Badge>
               </div>
-              <p className="font-normal text-sm leading-5 text-stone-300 mt-0.5">
-                Playful &amp; Bold • Herding Group • Adaptable Companion
-              </p>
+              <p className={`text-sm mt-0.5 ${M}`}>{info}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4 z-10 w-full md:w-auto justify-end">
-            <div className="hidden sm:flex items-center gap-2 text-stone-300 font-semibold text-xs">
+          <div className="flex items-center gap-4 z-10">
+            <span
+              className={`hidden sm:flex items-center gap-2 text-xs font-semibold ${M}`}>
               <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <span>High Trainability</span>
-            </div>
-            <button
-              className="px-4 py-1 rounded-full bg-zinc-800 text-amber-300 hover:bg-zinc-700 font-semibold text-xs transition-colors"
-              type="button">
-              Read Breed Guide
-            </button>
+              {trait}
+            </span>
+            <a
+              href={`https://www.akc.org/dog-breeds/${name.toLowerCase().replace(/ /g, "-")}/`}
+              target="_blank"
+              rel="noreferrer"
+              className={`${B} ${S} ${A}`}>
+              Guide
+            </a>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-          <div className="group flex flex-col bg-zinc-900 rounded-3xl p-4 shadow-md hover:-translate-y-1 transition-all duration-300">
-            <div className="relative w-full h-64 rounded-3xl overflow-hidden bg-zinc-700">
-              <img
-                alt=""
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                src="https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=800&q=80"
-              />
-              <div className="absolute top-2 left-2 px-4 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md text-stone-200 font-semibold text-xs">
-                Pembroke Welsh Corgi
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {dogs.map((d) => (
+            <div
+              key={d.name}
+              className={`${C} group flex flex-col rounded-3xl p-4 shadow-md hover:-translate-y-1 transition-all`}>
+              <div className="relative h-64 rounded-3xl overflow-hidden bg-zinc-300 dark:bg-zinc-700">
+                <img
+                  src={d.image}
+                  alt={d.name}
+                  className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
+                />
+                <span className="absolute top-2 left-2 px-3 py-0.5 rounded-full bg-zinc-950/80 text-stone-200 text-xs font-semibold">
+                  {d.breed}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 pt-4">
+                <div className="flex justify-between items-center">
+                  <h4 className={`text-lg font-bold ${T}`}>{d.name}</h4>
+                  <span className={`text-xs font-semibold ${A}`}>{d.age}</span>
+                </div>
+                <p className={`text-sm ${M}`}>{d.bio}</p>
+                <div className="flex gap-1 pt-1">
+                  {d.tags.map((t) => (
+                    <Badge key={t}>{t}</Badge>
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="flex flex-col gap-1 pt-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-bold text-xl text-stone-200">Barnaby</h4>
-                <span className="text-amber-300 font-semibold text-xs">
-                  2 Years Old
-                </span>
-              </div>
-              <p className="font-normal text-sm leading-5 text-stone-300">
-                Loves open fields &amp; warm nap spots
-              </p>
-              <div className="flex flex-wrap gap-1 pt-1">
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Affectionate
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Alert
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Smart
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="group flex flex-col bg-zinc-900 rounded-3xl p-4 shadow-md hover:-translate-y-1 transition-all duration-300">
-            <div className="relative w-full h-64 rounded-3xl overflow-hidden bg-zinc-700">
-              <img
-                alt=""
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80"
-              />
-              <div className="absolute top-2 left-2 px-4 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md text-stone-200 font-semibold text-xs">
-                French Bulldog
-              </div>
-            </div>
-            <div className="flex flex-col gap-1 pt-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-bold text-xl text-stone-200">Milo</h4>
-                <span className="text-amber-300 font-semibold text-xs">
-                  1.5 Years Old
-                </span>
-              </div>
-              <p className="font-normal text-sm leading-5 text-stone-300">
-                Curious couch companion &amp; snore champion
-              </p>
-              <div className="flex flex-wrap gap-1 pt-1">
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Quiet
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Loving
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Easygoing
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="group flex flex-col bg-zinc-900 rounded-3xl p-4 shadow-md hover:-translate-y-1 transition-all duration-300">
-            <div className="relative w-full h-64 rounded-3xl overflow-hidden bg-zinc-700">
-              <img
-                alt=""
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                src="https://images.dog.ceo/breeds/retriever-golden/n02099601_100.jpg"
-              />
-              <div className="absolute top-2 left-2 px-4 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md text-stone-200 font-semibold text-xs">
-                Golden Retriever
-              </div>
-            </div>
-            <div className="flex flex-col gap-1 pt-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-bold text-xl text-stone-200">Archie</h4>
-                <span className="text-amber-300 font-semibold text-xs">
-                  3 Years Old
-                </span>
-              </div>
-              <p className="font-normal text-sm leading-5 text-stone-300">
-                Radiant park sprinter &amp; swimming enthusiast
-              </p>
-              <div className="flex flex-wrap gap-1 pt-1">
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Gentle
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Devoted
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-stone-300 font-semibold text-xs">
-                  Joyous
-                </span>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

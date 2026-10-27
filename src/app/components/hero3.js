@@ -1,103 +1,134 @@
+"use client";
+
+import { useState } from "react";
 import { Refresh } from "./icon/refresh";
+
+const T = "text-zinc-900 dark:text-stone-200",
+  M = "text-zinc-600 dark:text-stone-300",
+  A = "text-amber-700 dark:text-amber-300";
+const C = "bg-white dark:bg-zinc-900",
+  S = "bg-zinc-200 dark:bg-zinc-800";
+const MORE_URL = "https://dog.ceo/api/breeds/image/random/4";
+
+const unsplash = (id) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=800&q=80`;
+const DOGS = [
+  {
+    link: unsplash("1558788353-f76d92427f16"),
+    title: "Summer Garden Stroll",
+    breed: "Corgi Companion",
+  },
+  {
+    link: unsplash("1583337130417-3346a1be7dee"),
+    title: "Curious Head-tilt",
+    breed: "French Bulldog",
+  },
+  {
+    link: "https://images.dog.ceo/breeds/retriever-golden/n02099601_100.jpg",
+    title: "Sunlit Afternoon",
+    breed: "Golden Retriever",
+  },
+  {
+    link: "https://images.dog.ceo/breeds/australian-shepherd/pepper.jpg",
+    title: "Forest Wanderer",
+    breed: "Aussie Shepherd",
+  },
+];
+
+const toBreed = (url) => {
+  const [m = "", s = ""] = (url.match(/breeds\/([^/]+)\//)?.[1] ?? "").split(
+    "-",
+  );
+  const words = m === "australian" ? [m, s] : [s, m];
+  return (
+    words
+      .filter(Boolean)
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(" ") || "Dog"
+  );
+};
+
+export function Dog({ link, title, breed }) {
+  return (
+    <div
+      className={`${S} group relative h-80 overflow-hidden rounded-3xl shadow-md`}>
+      <img
+        src={link}
+        alt={title}
+        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 flex items-end bg-gradient-to-t from-zinc-950/80 p-4 opacity-0 transition group-hover:opacity-100">
+        <div>
+          <p className="text-sm font-semibold text-stone-200">{title}</p>
+          <p className="text-xs font-semibold text-amber-300">{breed}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Hero3() {
+  const [dogs, setDogs] = useState(DOGS);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const showMore = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(MORE_URL);
+      if (!res.ok) throw new Error();
+      const { message } = await res.json();
+      setDogs((prev) => [
+        ...prev,
+        ...message.map((link, i) => ({
+          link,
+          title: DOGS[(prev.length + i) % DOGS.length].title,
+          breed: toBreed(link),
+        })),
+      ]);
+    } catch {
+      setError("Could not load more pups.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section
-      className="bg-zinc-950 font-sans text-base text-stone-200 w-full px-4 lg:px-8 py-10"
-      id="gallery">
-      <div className="max-w-7xl mx-auto flex flex-col gap-6 items-center">
-        <div className="text-center flex flex-col items-center gap-1 max-w-xl">
-          <div className="inline-flex items-center gap-1 px-4 py-1 rounded-full bg-zinc-800 text-amber-300 font-semibold text-xs">
-            <span>📸</span>
-            <span>Community Snaps</span>
-          </div>
-          <h2 className="font-bold text-3xl leading-tight text-stone-200 tracking-tight">
+      id="Gallery"
+      className={`w-full bg-stone-50 px-4 py-10 ${T} dark:bg-zinc-950 lg:px-8`}>
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-6">
+        <div className="flex max-w-xl flex-col items-center gap-1 text-center">
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-4 py-1 text-xs font-semibold ${S} ${A}`}>
+            📸 Community Snaps
+          </span>
+          <h2 className={`text-3xl font-bold tracking-tight ${T}`}>
             More Dogs to Love
           </h2>
-          <p className="font-normal text-base leading-6 text-stone-300">
-            A lively collection of everyday wagging tails, sweet snouts, and
-            happy smiles.
+          <p className={M}>
+            A lively collection of everyday wagging tails and happy smiles.
           </p>
         </div>
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-4">
-          <div className="group relative h-80 rounded-3xl overflow-hidden bg-zinc-900 shadow-md">
-            <img
-              alt=""
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              src="https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=800&q=80"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-              <div>
-                <p className="text-stone-200 font-semibold text-sm">
-                  Summer Garden Stroll
-                </p>
-                <p className="text-amber-300 font-semibold text-xs">
-                  Corgi Companion
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="group relative h-80 rounded-3xl overflow-hidden bg-zinc-900 shadow-md">
-            <img
-              alt=""
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-              <div>
-                <p className="text-stone-200 font-semibold text-sm">
-                  Curious Head-tilt
-                </p>
-                <p className="text-amber-300 font-semibold text-xs">
-                  French Bulldog
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="group relative h-80 rounded-3xl overflow-hidden bg-zinc-900 shadow-md">
-            <img
-              alt=""
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              src="https://images.dog.ceo/breeds/retriever-golden/n02099601_100.jpg"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-              <div>
-                <p className="text-stone-200 font-semibold text-sm">
-                  Sunlit Afternoon
-                </p>
-                <p className="text-amber-300 font-semibold text-xs">
-                  Golden Retriever
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="group relative h-80 rounded-3xl overflow-hidden bg-zinc-900 shadow-md">
-            <img
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              alt=""
-              src="https://images.dog.ceo/breeds/australian-shepherd/pepper.jpg"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-              <div>
-                <p className="text-stone-200 font-semibold text-sm">
-                  Forest Wanderer
-                </p>
-                <p className="text-amber-300 font-semibold text-xs">
-                  Aussie Shepherd
-                </p>
-              </div>
-            </div>
-          </div>
+
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {dogs.map((dog, i) => (
+            <Dog key={i} {...dog} />
+          ))}
         </div>
-        <div className="pt-4">
-          <button
-            className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-zinc-900 text-stone-200 font-semibold text-sm hover:bg-zinc-800 transition-transform active:scale-95 shadow-md"
-            id="loadMoreBtn"
-            type="button">
-            <span>🐾</span>
-            <span>Show More Pups</span>
-            <Refresh />
-          </button>
-        </div>
+
+        {error && <p className="text-sm text-red-500">{error}</p>}
+
+        <button
+          type="button"
+          onClick={showMore}
+          disabled={loading}
+          className={`${C} ${T} inline-flex items-center gap-2 rounded-full px-10 py-4 text-sm font-semibold shadow-md transition hover:bg-zinc-200 active:scale-95 disabled:opacity-60 dark:hover:bg-zinc-800`}>
+          <span>🐾</span>
+          <span>{loading ? "Loading..." : "Show More Pups"}</span>
+          <Refresh />
+        </button>
       </div>
     </section>
   );
